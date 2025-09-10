@@ -1,7 +1,11 @@
 [project]
 name = "python"
 version = "0.1.0"
-description = "Add your description here"
+description = "WebAP Captcha"
 readme = "README.md"
 requires-python = "==3.11.*"
-dependencies = []
+dependencies = [
+    "ai-edge-litert==1.4.0",
+    "pillow==11.3.0",
+    "requests==2.32.5",
+]

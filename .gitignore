@@ -1,2 +1,6 @@
 webap_captcha/python/.venv/
 webap_captcha/python/.python-version
+webap_captcha/python/uv.lock
+webap_captcha/python/webap_captcha.tflite
+webap_captcha/python/captcha.bmp
+webap_captcha/python/captcha_gray.bmp
