@@ -1,9 +1,8 @@
-import requests
 import numpy as np
-from PIL import Image
-import urllib3
+import requests
 from ai_edge_litert.interpreter import Interpreter
-from io import BytesIO
+
+from webap_captcha.python.utils import get_captcha_image
 
 model_url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/raw/fd06efbc54d3829fcca2c99c3517e1a2c6c903e0/assets/webap_captcha.tflite'
 
@@ -78,23 +77,8 @@ labels = [
   '9',
 ]
 
-captcha_url = 'https://webap.nkust.edu.tw/nkust/validateCode.jsp'
 
-# Disable warnings for unverified HTTPS requests
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-response = requests.get(captcha_url, verify=False, headers={
-    'User-Agent': 'Mozilla/5.0',
-    "Referer": "https://webap0.nkust.edu.tw/nkust/",
-})
-
-print("Captcha image status code:", response.status_code)
-
-img = Image.open(BytesIO(response.content))
-img.save('captcha.bmp')
-
-img_gray = convert2gray(np.array(img).astype(np.float32))
-Image.fromarray(img_gray.astype(np.uint8)).save('captcha_gray.bmp')
+img_gray = convert2gray(get_captcha_image().astype(np.float32))
 
 digitsCount = 4
 imageHeight = 40
