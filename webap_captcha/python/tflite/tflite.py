@@ -1,8 +1,14 @@
 import numpy as np
 import requests
+from PIL import Image
 from ai_edge_litert.interpreter import Interpreter
 
-from webap_captcha.python.utils import get_captcha_image
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from utils import get_captcha_image
 
 model_url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/raw/fd06efbc54d3829fcca2c99c3517e1a2c6c903e0/assets/webap_captcha.tflite'
 
@@ -77,8 +83,10 @@ labels = [
   '9',
 ]
 
+# img = get_captcha_image()
+img = np.array(Image.open('test/fail cases/CCL_A_0.bmp'))
 
-img_gray = convert2gray(get_captcha_image().astype(np.float32))
+img_gray = convert2gray(img.astype(np.float32))
 
 digitsCount = 4
 imageHeight = 40

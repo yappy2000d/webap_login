@@ -68,19 +68,6 @@ def ostu_threshold(image: np.ndarray) -> int:
 
     return final_thresh
 
-def binary_threshold(image: np.ndarray, threshold: int = 132) -> np.ndarray:
-    """
-    A simple binary threshold function.
-    threshold: 0-255, default 132 (empirically determined optimal value)
-    """
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            if image[i, j] > threshold:
-                image[i, j] = 255
-            else:
-                image[i, j] = 0
-    return image
-
 def binarize_image(image: np.ndarray, threshold: int) -> np.ndarray:
     """
     Binarize image using the given threshold.
