@@ -10,4 +10,4 @@
 ## To-Do
 
 - [ ] WebAp Helper：應用程式與校務系統之間的橋樑。[[Origin](https://github.com/NKUST-ITC/NKUST-AP-Flutter/blob/master/lib/api/ap_helper.dart)]
-- [] WebAp Captcha: 校務系統的圖形驗證
+- [ ] WebAp Captcha: 校務系統的圖形驗證
