@@ -1,10 +1,10 @@
 from __future__ import annotations
+from typing import Iterable, TypedDict
+from io import BytesIO
 import numpy as np
-from typing import Tuple, Iterable, List
 import requests
 from PIL import Image
 import urllib3
-from io import BytesIO
 
 
 def get_captcha_image() -> np.ndarray[tuple[int, int], np.dtype[np.uint8]]:
@@ -103,7 +103,7 @@ def label(
     structure: np.ndarray | None = None,
     background: int | float = 0,
     dtype: np.dtype = np.dtype("int64"),
-) -> Tuple[np.ndarray, int]:
+) -> tuple[np.ndarray, int]:
     """
     以純 Python（使用 NumPy 做陣列容器）實作 ND 連通元件標記，語義類似 scipy.ndimage.label。
 
@@ -146,8 +146,8 @@ def label(
     labels = np.zeros(a.shape, dtype=dtype)
 
     # Union-Find 結構（標籤從 1 開始）
-    parent: List[int] = [0]  # parent[0] 無用佔位，使索引與標籤一致
-    rank: List[int] = [0]
+    parent: list[int] = [0]  # parent[0] 無用佔位，使索引與標籤一致
+    rank: list[int] = [0]
 
     def uf_make() -> int:
         parent.append(len(parent))
@@ -186,7 +186,7 @@ def label(
         if not foreground[idx]:
             continue
 
-        neighbor_labels = []
+        neighbor_labels: list[int] = []
         # 檢視所有「已出現」的鄰居
         for off in neighbor_offsets:
             nb = _add_tuple(idx, off)
@@ -217,8 +217,8 @@ def label(
     roots = {lab: uf_find(lab) for lab in used}
 
     # 將根重編到 1..N
-    root_set = []
-    seen = set()
+    root_set: list[int] = []
+    seen: set[int] = set()
     for lab in used:
         r = roots[lab]
         if r not in seen:
@@ -281,7 +281,7 @@ def _validate_structure(structure: np.ndarray, ndim: int) -> None:
         raise ValueError("Structuring element is not symmetric")
 
 
-def _all_offsets(ndim: int) -> Iterable[Tuple[int, ...]]:
+def _all_offsets(ndim: int) -> Iterable[tuple[int, ...]]:
     if ndim == 0:
         return
     # 產生 (-1,0,1)^ndim（不含全 0）
@@ -292,12 +292,12 @@ def _all_offsets(ndim: int) -> Iterable[Tuple[int, ...]]:
             yield off
 
 
-def _to_index(off: Tuple[int, ...]) -> Tuple[int, ...]:
+def _to_index(off: tuple[int, ...]) -> tuple[int, ...]:
     # 把偏移 -1/0/1 轉成 footprint 索引 0/1/2
     return tuple(o + 1 for o in off)
 
 
-def _compute_causal_neighbor_offsets(structure: np.ndarray) -> List[Tuple[int, ...]]:
+def _compute_causal_neighbor_offsets(structure: np.ndarray) -> list[tuple[int, ...]]:
     """
     從 footprint 中挑出「因果」鄰域：
     - 僅包含在掃描順序（C-order，最後一維最先變動）上已經處理過的鄰居。
@@ -309,7 +309,7 @@ def _compute_causal_neighbor_offsets(structure: np.ndarray) -> List[Tuple[int, .
     - 全部為 0 則 False
     """
     ndim = structure.ndim
-    offs = []
+    offs: list[tuple[int, ...]] = []
     for off in _all_offsets(ndim):
         if not structure[_to_index(off)]:
             continue
@@ -318,7 +318,7 @@ def _compute_causal_neighbor_offsets(structure: np.ndarray) -> List[Tuple[int, .
     return offs
 
 
-def _is_lexicographically_negative(off: Tuple[int, ...]) -> bool:
+def _is_lexicographically_negative(off: tuple[int, ...]) -> bool:
     for o in off:
         if o < 0:
             return True
@@ -328,16 +328,21 @@ def _is_lexicographically_negative(off: Tuple[int, ...]) -> bool:
     return False
 
 
-def _add_tuple(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
+def _add_tuple(a: tuple[int, ...], b: tuple[int, ...]) -> tuple[int, ...]:
     return tuple(x + y for x, y in zip(a, b))
 
 
-def _in_bounds(idx: Tuple[int, ...], shape: Tuple[int, ...]) -> bool:
+def _in_bounds(idx: tuple[int, ...], shape: tuple[int, ...]) -> bool:
     return all(0 <= i < n for i, n in zip(idx, shape))
 
 
-def segment_characters(labels_img: np.ndarray, num_labels: int) -> List[np.ndarray]:
-    bboxes = []
+class BBox(TypedDict):
+    label: int
+    bbox: tuple[int, int, int, int]  # (x_min, y_min, x_max, y_max)
+
+
+def segment_characters(labels_img: np.ndarray, num_labels: int) -> list[np.ndarray]:
+    bboxes: list[BBox] = []
     for i in range(1, num_labels + 1):
         ys, xs = np.where(labels_img == i)
 
@@ -355,7 +360,7 @@ def segment_characters(labels_img: np.ndarray, num_labels: int) -> List[np.ndarr
 
     bboxes = sorted(bboxes, key=lambda x: x["bbox"][0])
 
-    result = []
+    result: list[np.ndarray] = []
     for item in bboxes:
         # Crop to bounding box
         x_min, y_min, x_max, y_max = item["bbox"]
