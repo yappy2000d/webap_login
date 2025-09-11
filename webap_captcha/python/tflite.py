@@ -3,9 +3,7 @@ from pathlib import Path
 import numpy as np
 from ai_edge_litert.interpreter import Interpreter
 
-model_url = "https://github.com/NKUST-ITC/NKUST-AP-Flutter/raw/fd06efbc54d3829fcca2c99c3517e1a2c6c903e0/assets/webap_captcha.tflite"
-
-model_path = Path(__file__).resolve().parents[1] / "webap_captcha.tflite"
+model_path = "webap_captcha.tflite"
 
 
 def convert2gray(img: np.ndarray) -> np.ndarray:
