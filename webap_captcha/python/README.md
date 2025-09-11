@@ -8,12 +8,27 @@
 ```
 cd webap_captcha/python/
 uv sync
-.venv/bin/python tflite/tflite.py
 ```
+
+## Usage
+
+1. 先以 test_tflite.py 測試 TFLite 模型準確度的同時，蒐集驗證圖片
+2. 再以 character_gen.py 產生各個字元的圖片
+3. 有了字元圖片後，就可以測試 cossim 或 eucdist 的準確度
 
 ## Todo
 
 - [X] Tflite
 - [X] Segmentation
-- [ ] Cosine similarity
-- [ ] Euclidean distance
+- [X] Cosine similarity
+- [X] Euclidean distance
+
+## Test
+
+| Method | Error/Total | Accuracy |
+|--------|-------------|----------|
+| TFLite | 844/1000    | 15.60%   |
+| Cossim | 1365/1365   | 0%       |
+| Eucdist| 27/1365     | 98.02%   |
+
+there are 13 errors both in Cossim and Eucdist, are caused by wrong segmentation.
