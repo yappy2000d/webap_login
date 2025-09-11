@@ -23,7 +23,7 @@ for path in paths:
     image = Image.open(path)
     img = np.array(image)
 
-    img_bin = utils.binarize_image(img, 132)
+    img_bin = utils.binarize_image(img, 138)
     labels_im, num_labels = segment.label(img_bin, background=255)
     chars = segment.segment_characters(labels_im, num_labels)
 

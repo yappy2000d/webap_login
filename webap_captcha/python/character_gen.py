@@ -16,7 +16,7 @@ for path in glob("test/tflite/success/*.bmp"):
     image = Image.open(path)
     img = np.array(image)
 
-    img_bin = utils.binarize_image(img, 132)
+    img_bin = utils.binarize_image(img, 138)
 
     labels_im, num_labels = segment.label(img_bin, background=255)
 
@@ -35,13 +35,12 @@ for path in glob("test/tflite/success/*.bmp"):
 for char in os.listdir("assets"):
     images = glob(f"assets/{char}/*.bmp")
 
-    avg = np.zeros((22, 22), dtype=np.uint8)
+    avg = np.zeros((22, 22), dtype=np.uint16)
 
     for path in images:
-        img = np.array(Image.open(path))
+        img = np.array(Image.open(path)).astype(np.uint16)
 
-        
-        canva = np.zeros((22, 22), dtype=np.uint8)
+        canva = np.zeros((22, 22), dtype=np.uint16)
 
         #將圖片至於中心
         h, w = img.shape
