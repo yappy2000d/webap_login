@@ -1,3 +1,7 @@
+"""
+這個腳本經過試驗是錯誤的，可能是因為以異布局方式請求時，伺服器對驗證碼的處理有差異。
+請使用同步版本的腳本 test_tflite.py 來進行測試。
+"""
 import aiohttp
 import numpy as np
 from io import BytesIO
