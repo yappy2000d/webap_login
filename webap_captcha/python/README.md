@@ -23,10 +23,10 @@ uv sync
 - [X] Cosine similarity
 - [X] Euclidean distance
 - [ ] Improve segmentation
-- [ ] Impove Euclidean distance
+- [X] Impove Euclidean distance
   - [X] Fix Q sometimes wrong to O
   - [X] Fix F sometimes wrong to P
-  - [ ] Fix 7 sometimes wrong to T
+  - [ ] Fix 7 sometimes wrong to T (impossible? need more data)
 
 ## Test
 
