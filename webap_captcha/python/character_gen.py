@@ -11,7 +11,7 @@ from uuid import uuid4
 import segment
 import utils
 
-for path in glob("test/tflite/success/*.bmp"):
+for path in glob("test/tflite/success/*.bmp") + glob("test/eucdist/success/*.bmp"):
     answer = path.rsplit("/")[-1].split(".")[0]
     image = Image.open(path)
     img = np.array(image)
@@ -35,7 +35,8 @@ for path in glob("test/tflite/success/*.bmp"):
 for char in os.listdir("assets"):
     images = glob(f"assets/{char}/*.bmp")
 
-    avg = np.zeros((22, 22), dtype=np.uint16)
+
+    avg = np.zeros((22, 22), dtype=np.float64)
 
     for path in images:
         img = np.array(Image.open(path)).astype(np.uint16)
@@ -46,8 +47,11 @@ for char in os.listdir("assets"):
         h, w = img.shape
         canva[(22 - h) // 2:(22 - h) // 2 + h, (22 - w) // 2:(22 - w) // 2 + w] = img
 
-        avg += canva // len(images)
+        avg += canva
 
-    avg = np.where(avg > 100, 255, 0)
-
-    Image.fromarray(avg.astype(np.uint8)).save(f"assets/{char}.bmp")
+    if len(images) > 0:
+        avg = avg // len(images)
+        avg = np.where(avg > 100, 255, 0)
+        Image.fromarray(avg.astype(np.uint8)).save(f"assets/{char}.bmp")
+    else:
+        print(f"Warning: No images found for character '{char}'. Skipping.")

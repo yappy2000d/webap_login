@@ -11,7 +11,7 @@ import utils
 import segment
 import eucdist
 
-paths = glob.glob("test/tflite/success/*.bmp")
+paths = glob.glob("test/eucdist/success/*.bmp")
 
 seg_err_cnt = 0
 compare_err_cnt = 0

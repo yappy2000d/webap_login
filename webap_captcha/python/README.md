@@ -22,13 +22,18 @@ uv sync
 - [X] Segmentation
 - [X] Cosine similarity
 - [X] Euclidean distance
+- [ ] Improve segmentation
+- [ ] Impove Euclidean distance
+  - [X] Fix Q sometimes wrong to O
+  - [ ] Fix F sometimes wrong to P
+  - [ ] Fix 7 sometimes wrong to T
 
 ## Test
 
 | Method | Error/Total | Accuracy |
 |--------|-------------|----------|
-| TFLite | 844/1000    | 15.60%   |
+| TFLite | 896/5084    | 82.38%   |
 | Cossim | 1365/1365   | 0%       |
-| Eucdist| 4917/5000   | 98.34%   |
+| Eucdist| 4947/5000   | 98.94%   |
 
 there are 41 errors Eucdist are caused by wrong segmentation.
