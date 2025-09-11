@@ -5,7 +5,8 @@ description = "WebAP Captcha"
 readme = "README.md"
 requires-python = "==3.11.*"
 dependencies = [
-    "ai-edge-litert==1.4.0",
+    "ai-edge-litert==1.4.0 ; platform_system != 'Windows'",
+    "numpy",
     "pillow==11.3.0",
     "requests==2.32.5",
 ]
