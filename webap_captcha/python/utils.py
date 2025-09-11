@@ -6,26 +6,32 @@ from PIL import Image
 import urllib3
 from io import BytesIO
 
+
 def get_captcha_image() -> np.ndarray[tuple[int, int], np.dtype[np.uint8]]:
     """
     Get the captcha image from the webap.
     """
-    captcha_url = 'https://webap.nkust.edu.tw/nkust/validateCode.jsp'
+    captcha_url = "https://webap.nkust.edu.tw/nkust/validateCode.jsp"
 
     # Disable warnings for unverified HTTPS requests
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    response = requests.get(captcha_url, verify=False, headers={
-        'User-Agent': 'Mozilla/5.0',
-        "Referer": "https://webap0.nkust.edu.tw/nkust/",
-    })
+    response = requests.get(
+        captcha_url,
+        verify=False,
+        headers={
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://webap0.nkust.edu.tw/nkust/",
+        },
+    )
 
     print("Captcha image status code:", response.status_code)
 
     img = Image.open(BytesIO(response.content))
-    img.save('captcha.bmp')
+    img.save("captcha.bmp")
 
     return np.array(img, dtype=np.uint8)
+
 
 def histogram(image: np.ndarray) -> np.ndarray:
     """
@@ -36,6 +42,7 @@ def histogram(image: np.ndarray) -> np.ndarray:
         for j in range(image.shape[1]):
             hist[image[i, j]] += 1
     return hist
+
 
 def ostu_threshold(image: np.ndarray) -> int:
     """
@@ -59,7 +66,11 @@ def ostu_threshold(image: np.ndarray) -> int:
         mean_foreground = np.sum(intensity_arr[t:] * his[t:]) / np.sum(his[t:])
 
         # Calculate Between Class Variance
-        value = weight_background * weight_foreground * (mean_background - mean_foreground) ** 2
+        value = (
+            weight_background
+            * weight_foreground
+            * (mean_background - mean_foreground) ** 2
+        )
 
         # Check if new maximum found
         if value > final_value:
@@ -67,6 +78,7 @@ def ostu_threshold(image: np.ndarray) -> int:
             final_value = value
 
     return final_thresh
+
 
 def binarize_image(image: np.ndarray, threshold: int) -> np.ndarray:
     """
@@ -78,13 +90,12 @@ def binarize_image(image: np.ndarray, threshold: int) -> np.ndarray:
         for j in range(image.shape[1]):
             # Convert to grayscale using luminosity method
             # I = (image[i, j, 0] + image[i, j, 1] + image[i, j, 2]) // 3
-            I = image[i, j, 0] // 3 + image[i, j, 1]  // 3 + image[i, j, 2] // 3
+            I = image[i, j, 0] // 3 + image[i, j, 1] // 3 + image[i, j, 2] // 3
             if I > threshold:
                 result[i, j] = 255
             else:
                 result[i, j] = 0
     return result
-
 
 
 def label(
@@ -136,7 +147,7 @@ def label(
 
     # Union-Find 結構（標籤從 1 開始）
     parent: List[int] = [0]  # parent[0] 無用佔位，使索引與標籤一致
-    rank:   List[int] = [0]
+    rank: List[int] = [0]
 
     def uf_make() -> int:
         parent.append(len(parent))
@@ -237,6 +248,7 @@ def label(
 # 工具函式
 # -----------------------------
 
+
 def _default_structure(ndim: int) -> np.ndarray:
     """
     預設 footprint：面相鄰（Manhattan 距離為 1 的鄰居），形狀為 (3,)*ndim，布林。
@@ -259,9 +271,13 @@ def _validate_structure(structure: np.ndarray, ndim: int) -> None:
     if structure.ndim != ndim:
         raise ValueError("Structuring element must have same # of dimensions as input")
     if set(structure.shape) != {3}:
-        raise ValueError(f"Structuring element must be size 3 in every dimension, was {structure.shape}")
+        raise ValueError(
+            f"Structuring element must be size 3 in every dimension, was {structure.shape}"
+        )
     # 對稱性檢查
-    if not np.array_equal(structure, structure[tuple(slice(None, None, -1) for _ in range(ndim))]):
+    if not np.array_equal(
+        structure, structure[tuple(slice(None, None, -1) for _ in range(ndim))]
+    ):
         raise ValueError("Structuring element is not symmetric")
 
 
@@ -270,6 +286,7 @@ def _all_offsets(ndim: int) -> Iterable[Tuple[int, ...]]:
         return
     # 產生 (-1,0,1)^ndim（不含全 0）
     from itertools import product
+
     for off in product((-1, 0, 1), repeat=ndim):
         if any(o != 0 for o in off):
             yield off
@@ -317,3 +334,35 @@ def _add_tuple(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
 
 def _in_bounds(idx: Tuple[int, ...], shape: Tuple[int, ...]) -> bool:
     return all(0 <= i < n for i, n in zip(idx, shape))
+
+
+def segment_characters(labels_img: np.ndarray, num_labels: int) -> List[np.ndarray]:
+    bboxes = []
+    for i in range(1, num_labels + 1):
+        ys, xs = np.where(labels_img == i)
+
+        if len(xs) == 0 or len(ys) == 0:
+            continue
+
+        x_min, x_max = xs.min(), xs.max()
+        y_min, y_max = ys.min(), ys.max()
+
+        # filter small components
+        if x_max - x_min < 5 or y_max - y_min < 5:
+            continue
+
+        bboxes.append({"label": i, "bbox": (x_min, y_min, x_max, y_max)})
+
+    bboxes = sorted(bboxes, key=lambda x: x["bbox"][0])
+
+    result = []
+    for item in bboxes:
+        # Crop to bounding box
+        x_min, y_min, x_max, y_max = item["bbox"]
+        char = labels_img[y_min : y_max + 1, x_min : x_max + 1]
+        # Binarize character image
+        char = np.where(char > 0, 255, 0).astype(np.uint8)
+
+        result.append(char)
+
+    return result
