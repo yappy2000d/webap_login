@@ -34,6 +34,6 @@ uv sync
 |--------|-------------|----------|
 | TFLite | 896/5084    | 82.38%   |
 | Cossim | 1365/1365   | 0%       |
-| Eucdist| 4947/5000   | 98.94%   |
+| Eucdist| 53/5000     | 98.94%   |
 
 there are 41 errors Eucdist are caused by wrong segmentation.
