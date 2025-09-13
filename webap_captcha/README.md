@@ -7,6 +7,6 @@
 
 ## Coding Language
 
-- Flutter: 以 Dart 撰寫的版本，是實際用於 APP 的版本。將以此版本來比較不同方式的速度。
+- Dart: 以 Dart 撰寫的版本，是實際用於 APP 的版本。將以此版本來比較不同方式的速度。
 - Python: 以 Python 撰寫的版本，用於功能驗證。將以此版本來比較不同方式的準確率。
 
