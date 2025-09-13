@@ -13,7 +13,7 @@ def eucdist(image1: np.ndarray, image2: np.ndarray) -> float:
 
 def get_character(image: np.ndarray) -> str:
     """Get the character represented by the image."""
-       # Resize the image to 22x22 and place it in the middle of a 22x22 canvas
+    # Resize the image to 22x22 and place it in the middle of a 22x22 canvas
     canva = np.zeros((22, 22), dtype=np.uint8)
     h, w = image.shape
     canva[(22 - h) // 2:(22 - h) // 2 + h, (22 - w) // 2:(22 - w) // 2 + w] = image
