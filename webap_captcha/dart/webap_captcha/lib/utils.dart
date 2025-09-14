@@ -4,6 +4,9 @@ import 'package:image/image.dart' show Image, decodeBmpFile, getLuminance;
 
 import 'matrix.dart';
 
+// (label, (minX, minY, maxX, maxY))
+typedef CausalNeighborOffsets = MapEntry<int, (int, int, int, int)>;
+
 /// Read an image from the given path.
 /// Throws [PathNotFoundException] if the file is not found.
 /// Throws [Exception] if there is an error reading the image.
@@ -110,19 +113,17 @@ List<Matrix<int>?> cropImage(
   }
 
   // Sort bounding boxes by x coordinate
-  final List<MapEntry<int, (int, int, int, int)>> sortedBboxes =
-      bboxes.entries.toList()..sort(
-        (
-          MapEntry<int, (int, int, int, int)> a,
-          MapEntry<int, (int, int, int, int)> b,
-        ) => a.value.$1.compareTo(b.value.$1),
-      );
+  final List<CausalNeighborOffsets> sortedBboxes = bboxes.entries.toList()
+    ..sort(
+      (CausalNeighborOffsets a, CausalNeighborOffsets b) =>
+          a.value.$1.compareTo(b.value.$1),
+    );
 
   // Crop characters
   // Use fixed length list to avoid dynamic resizing, length should be 4
   final List<Matrix<int>?> result = List<Matrix<int>?>.filled(4, null);
   int index = 0;
-  for (final MapEntry<int, (int, int, int, int)> bbox in sortedBboxes) {
+  for (final CausalNeighborOffsets bbox in sortedBboxes) {
     final (int minX, int minY, int maxX, int maxY) = bbox.value;
     final Matrix<int> cropped = _cropAndPad(
       labeledImage,
