@@ -4,3 +4,5 @@ webap_captcha/python/uv.lock
 webap_captcha/python/webap_captcha.tflite
 webap_captcha/python/**/__pycache__/
 webap_captcha/python/**/*.bmp
+.vscode/
+.idea/

@@ -9,7 +9,7 @@ final List<Future<Matrix<int>>> _referenceImages =
   int index,
 ) async {
   final String char = _characters[index];
-  final String path = 'assets/$char.bmp';
+  final String path = 'assets/eucdist/$char.bmp';
   final Matrix<int> img = await readImage(path);
   return img;
 });

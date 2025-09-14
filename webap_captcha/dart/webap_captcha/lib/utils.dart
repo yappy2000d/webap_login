@@ -1,4 +1,5 @@
 import 'dart:io' show PathNotFoundException;
+import 'dart:typed_data' show Float32List, Uint8List;
 
 import 'package:image/image.dart' show Image, decodeBmpFile, getLuminance;
 
@@ -135,4 +136,23 @@ List<Matrix<int>?> cropImage(
     result[index++] = cropped;
   }
   return result;
+}
+
+Uint8List imageToByteListFloat32(
+  Image image,
+  int w,
+  int h,
+  double mean,
+  double std,
+) {
+  final Float32List convertedBytes = Float32List(1 * w * h * 1);
+  final Float32List buffer = Float32List.view(convertedBytes.buffer);
+  int pixelIndex = 0;
+  for (int i = 0; i < h; i++) {
+    for (int j = 0; j < w; j++) {
+      buffer[pixelIndex] = (image.getPixel(j, i).r) / std;
+      pixelIndex++;
+    }
+  }
+  return convertedBytes.buffer.asUint8List();
 }
