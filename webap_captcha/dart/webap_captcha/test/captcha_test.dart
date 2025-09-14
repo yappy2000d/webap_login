@@ -70,8 +70,8 @@ void main() {
           error++;
         }
       }
-      interpreter.close();
     }
+    interpreter.close();
     var end = DateTime.now();
     print(
       'TfLite: Correct: $correct, Error: $error, Time: \\${end.difference(start).inMilliseconds} ms',
