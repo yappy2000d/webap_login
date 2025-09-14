@@ -1,81 +1,82 @@
-import 'dart:io';
+@Timeout(Duration(minutes: 3))
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart';
-import 'package:webap_captcha/captcha.dart';
-import 'package:image/image.dart';
 import 'package:integration_test/integration_test.dart';
-
+import 'package:webap_captcha/captcha.dart';
+import 'package:webap_captcha/bmp_assets.dart' show bmpFiles;
+import 'package:webap_captcha/utils.dart' show readImage;
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  final testDir = Directory("assets_test/labeled");
+  test('Euclidean Distance based solver', () async {
+    var correct = 0;
+    var error = 0;
+    var start = DateTime.now();
 
-  // test('Euclidean Distance based solver', () async {
-  //   var correct = 0;
-  //   var error = 0;
-  //   var start = DateTime.now();
-
-  //   for (final file in testDir.listSync()) {
-  //     if (file is File && file.path.endsWith('.bmp')) {
-  //       var ans = basenameWithoutExtension(file.path);
-  //       if(ans.contains('_')) {
-  //         ans = ans.split('_').first;
-  //       }
-
-  //       final img = decodeBmp(file.readAsBytesSync());
-  //       expect(img, isNotNull, reason: 'Failed to decode image for $ans');
-  //       try {
-  //         final result = await solveByEucDist(img!);
-  //         if (result == ans) {
-  //           correct++;
-  //         } else {
-  //           error++;
-  //         }
-  //       } on SegmentationException {
-  //         error++;
-  //       }
-  //       catch (e) {
-  //         print('EucDist: Exception for $ans: $e');
-  //         error++;
-  //       }
-  //     }
-  //   }
-  //   var end = DateTime.now();
-  //   print('EucDist: Correct: $correct, Error: $error, Time: \\${end.difference(start).inMilliseconds} ms');
-  //   // expect(error, equals(0), reason: 'There should be no errors in Euclidean solver');
-  // });
+    for (final fileName in bmpFiles) {
+      var ans = basenameWithoutExtension(fileName);
+      if (ans.contains('_')) {
+        ans = ans.split('_').first;
+      }
+      try {
+        final img = await readImage('assets_test/labeled/$fileName');
+        final result = await solveByEucDist(img);
+        if (result == ans) {
+          correct++;
+        } else {
+          error++;
+        }
+      } on SegmentationException {
+        error++;
+      } catch (e) {
+        print('EucDist: Exception for $ans: $e');
+        error++;
+      }
+    }
+    var end = DateTime.now();
+    print(
+      'EucDist: Correct: $correct, Error: $error, Time: \\${end.difference(start).inMilliseconds} ms',
+    );
+    // expect(error, equals(0), reason: 'There should be no errors in Euclidean solver');
+  });
 
   test('TensorFlow Lite based solver', () async {
     var correct = 0;
     var error = 0;
     var start = DateTime.now();
+    final Interpreter interpreter = await Interpreter.fromAsset(
+      'assets/webap_captcha.tflite',
+    );
 
-    for (final file in testDir.listSync()) {
-      if (file is File && file.path.endsWith('.bmp')) {
-        var ans = basenameWithoutExtension(file.path);
-        if(ans.contains('_')) {
-          ans = ans.split('_').first;
-        }
+    for (final fileName in bmpFiles) {
+      var ans = basenameWithoutExtension(fileName);
+      if (ans.contains('_')) {
+        ans = ans.split('_').first;
+      }
 
-        final img = decodeBmp(file.readAsBytesSync());
-        expect(img, isNotNull, reason: 'Failed to decode image for $ans');
-        try {
-          final result = await solveByTfLite(img!);
-          if (result == ans) {
-            correct++;
-          } else {
-            error++;
-          }
-        } catch (e) {
-          print('TfLite: Exception for $ans: $e');
+      try {
+        final img = await readImage('assets_test/labeled/$fileName');
+        final result = await solveByTfLite(img, interpreter);
+        if (result == ans) {
+          correct++;
+        } else {
           error++;
         }
+      } catch (e) {
+        print('TfLite: Exception for $ans: $e');
+        error++;
       }
-      break;
     }
+    interpreter.close();
+
     var end = DateTime.now();
-    print('TfLite: Correct: $correct, Error: $error, Time: \\${end.difference(start).inMilliseconds} ms');
+    print(
+      'TfLite: Correct: $correct, Error: $error, Time: \\${end.difference(start).inMilliseconds} ms',
+    );
     // expect(error, equals(0), reason: 'There should be no errors in TfLite solver');
   });
 }

@@ -1,5 +1,6 @@
-import 'utils.dart' show readImage;
+import 'utils.dart' show readImage, imageToMatrix;
 import 'matrix.dart' show Matrix;
+import 'package:image/image.dart' show Image;
 
 const String _characters = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -10,8 +11,8 @@ final List<Future<Matrix<int>>> _referenceImages =
 ) async {
   final String char = _characters[index];
   final String path = 'assets/eucdist/$char.bmp';
-  final Matrix<int> img = await readImage(path);
-  return img;
+  final Image img = await readImage(path);
+  return imageToMatrix(img);
 });
 
 /// Calculate the Euclidean distance between two gray-scale images.

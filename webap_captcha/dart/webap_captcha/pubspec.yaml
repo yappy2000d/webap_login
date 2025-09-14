@@ -11,6 +11,8 @@ dependencies:
   path: ^1.8.0
   image: ^4.0.2
   tflite_flutter: ^0.11.0
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   lints: ^5.1.1
@@ -24,3 +26,4 @@ flutter:
   assets:
     - assets/webap_captcha.tflite
     - assets/eucdist/
+    - assets_test/labeled/

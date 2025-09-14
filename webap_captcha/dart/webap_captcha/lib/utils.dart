@@ -1,7 +1,8 @@
 import 'dart:io' show PathNotFoundException;
 import 'dart:typed_data' show Float32List, Uint8List;
 
-import 'package:image/image.dart' show Image, decodeBmpFile, getLuminance;
+import 'package:image/image.dart' show Image, decodeBmp, getLuminance;
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'matrix.dart';
 
@@ -11,16 +12,26 @@ typedef CausalNeighborOffsets = MapEntry<int, (int, int, int, int)>;
 /// Read an image from the given path.
 /// Throws [PathNotFoundException] if the file is not found.
 /// Throws [Exception] if there is an error reading the image.
-Future<Matrix<int>> readImage(String path) async {
-  Image? image;
+// Future<Matrix<int>> readImage(String path) async {
+//   Image? image;
 
-  image = await decodeBmpFile(path);
+//   image = await decodeBmpFile(path);
 
-  if (image == null) {
-    throw Exception('Error reading image from $path');
+//   if (image == null) {
+//     throw Exception('Error reading image from $path');
+//   }
+
+//   return imageToMatrix(image);
+// }
+
+Future<Image> readImage(String path) async {
+  final byteData = await rootBundle.load(path);
+  final bytes = byteData.buffer.asUint8List();
+  final img = decodeBmp(bytes);
+  if (img == null) {
+    throw Exception('Failed to decode image: $path');
   }
-
-  return imageToMatrix(image);
+  return img;
 }
 
 Matrix<int> imageToMatrix(Image image) {

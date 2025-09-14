@@ -36,26 +36,50 @@ Future<String> solveByEucDist(Image image) async {
 }
 
 const List<String> labels = <String>[
-  'A',  'B',  'C',  'D',
-  'E',  'F',  'G',  'H',
-  'I',  'J',  'K',  'L',
-  'M',  'N',  'O',  'P',
-  'Q',  'R',  'S',  'T',
-  'U',  'V',  'W',  'X',
-  'Y',  'Z',  '0',  '1',
-  '2',  '3',  '4',  '5',
-  '6',  '7',  '8',  '9',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+  '0',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
 ];
 
-Future<String> solveByTfLite(Image image) async {
+Future<String> solveByTfLite(Image image, Interpreter interpreter) async {
   const int digitsCount = 4;
   const int imageHeight = 40;
   const int imageWidth = 85;
-  
+
   final Image grayscaleImage = grayscale(image);
-  final Interpreter interpreter = await Interpreter.fromAsset(
-    'assets/webap_captcha.tflite',
-  );
 
   final StringBuffer replaceText = StringBuffer();
   const int w = imageWidth ~/ digitsCount;
@@ -80,6 +104,5 @@ Future<String> solveByTfLite(Image image) async {
       replaceText.write(labels[maxIndex]);
     }
   }
-  interpreter.close();
   return replaceText.toString();
 }
