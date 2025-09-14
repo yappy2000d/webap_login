@@ -8,28 +8,26 @@
 - Flutter SDK
 - A Mobile Device or Emulator
 
-### 在 Windows 下構建 tensorflowlite_c.dll
+### 在 Windows 下執行 tflite
 
-```
-git clone https://github.com/tensorflow/tensorflow.git tensorflow_src
-mkdir tflite_build
-cd tflite_build
-cmake -S ../tensorflow_src/tensorflow/lite/c -B build -A x64 -DCMAKE_BUILD_TYPE=Release -DTFLITE_ENABLE_C_API=ON -DTF_MAJOR_VERSION=2 -DTF_MINOR_VERSION=11 -DTF_PATCH_VERSION=0 -DTF_VERSION_SUFFIX=''
-cmake --build build --config Release --target install
-```
+1. 下載[預編譯的 TFLite](https://github.com/ValYouW/tflite-dist/releases/download/v2.11.0/tflite-dist.zip)。
+2. 解壓縮並將其中的 `tensorflowlite_c.dll` 重新命名成 `libtensorflowlite_c-win.dll`。
+3. 然後放到專案目錄的`flutter\bin\cache\artifacts\engine\windows-x64\blobs\`下。
 
-編譯完成後將 `tflite_build/build/Release/tensorflowlite_c.dll` 複製到專案目錄下的 `blobs` 資料夾中。
+## Test Results
 
-接著將以下內容新增到 `windows/CMakeLists.txt`：
+Platform: Windows 11, Intel i5-1145G7 @ 2.60GHz, 16GB RAM  
+tested on 16329 samples
 
-```
-# get tf lite binaries
-install(
-  FILES ${PROJECT_BUILD_DIR}/../blobs/libtensorflowlite_c-win.dll 
-  DESTINATION ${INSTALL_BUNDLE_DATA_DIR}/../blobs/
-)
-```
+| Method | Inference Time (ms) |
+|-------|---------------------|
+| EucDist | 47775 ms |
+| TfLite | 39917 ms |
 
-## Setup
+Platform: Android 15, MediaTek Dimensity 1080 @ 2.60GHz, 8GB RAM  
+tested on 2001 samples
 
-由於 TfLite 只支援 arm64 架構，因此需要在 arm64 的設備上運行。
+| Method | Inference Time (ms) |
+|-------|---------------------|
+| EucDist | 8863 ms |
+| TfLite | 7616 ms |
