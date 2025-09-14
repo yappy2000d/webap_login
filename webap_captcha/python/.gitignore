@@ -1,0 +1,4 @@
+webap_captcha.tflite
+**/__pycache__/
+**/*.bmp
+.venv/
