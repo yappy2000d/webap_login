@@ -1,6 +1,7 @@
 import 'utils.dart';
 import 'segment.dart';
 import 'eucdist.dart';
+import 'matrix.dart';
 
 import 'package:image/image.dart';
 
@@ -13,20 +14,20 @@ class SegmentationException implements Exception {
 }
 
 Future<String> solveByEucDist(Image image) async {
-  final img = imageToMatrix(image);
+  final Matrix<int> img = imageToMatrix(image);
 
-  final binaryImg = binaryThreshold(img, 138);
-  final (labeledImg, numLabels) = label(binaryImg);
+  final Matrix<int> binaryImg = binaryThreshold(img, 138);
+  final (Matrix<int> labeledImg, int numLabels) = label(binaryImg);
 
   if (numLabels != 4) {
     throw SegmentationException('connected components != 4, found: $numLabels');
   }
 
-  final characters = cropImage(labeledImg, numLabels);
-  
-  var results = "";
-  for (final charImg in characters) {
-    results += await getCharacter(charImg);
+  final List<Matrix<int>?> characters = cropImage(labeledImg, numLabels);
+
+  final StringBuffer results = StringBuffer();
+  for (final Matrix<int>? charImg in characters) {
+    results.write(await getCharacter(charImg!));  // null is placeholder, should be non-null
   }
-  return results;
+  return results.toString();
 }

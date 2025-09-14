@@ -4,8 +4,8 @@ import 'matrix.dart';
 /// Labels the connected components of a binary image.
 ///
 /// Parameters:
-/// - [a]: A 2D binary matrix where non-background pixels are considered foreground.
-/// - [structure]: A 2D binary matrix defining the connectivity. If null, defaults to 4-connectivity.
+/// - [a]: A 2D binary matrix.
+/// - [structure]: A 2D binary matrix defining the connectivity. defaults to 4-connectivity.
 /// - [background]: The pixel value representing the background. Defaults to 0.
 ///
 /// Returns:
@@ -15,7 +15,7 @@ import 'matrix.dart';
 ///   - The number of connected components found in the image.
 (Matrix<int>, int) label(
   Matrix<int> a, {
-  Matrix? structure,
+  Matrix<int>? structure,
   int? background = 0,
 }) {
   // Validate input image
@@ -23,23 +23,24 @@ import 'matrix.dart';
     throw ArgumentError('Cannot label an empty image.');
   }
 
-  final foreground = a.notEqualMask(background!);
+  final Matrix<bool> foreground = a.notEqualMask(background!);
 
   // Construct footprint
   // Default to 4-connectivity
-  structure ??= Matrix.fromList([
-    [0, 1, 0],
-    [1, 1, 1],
-    [0, 1, 0],
+  structure ??= Matrix<int>.fromList(<List<int>>[
+    <int>[0, 1, 0],
+    <int>[1, 1, 1],
+    <int>[0, 1, 0],
   ]);
 
-  final neighborOffsets = _computeCausalNeighborOffsets(structure);
+  final List<List<int>> neighborOffsets =
+      _computeCausalNeighborOffsets(structure);
 
-  final labels = Matrix<int>.fromDimensions(a.width, a.height, 0);
+  final Matrix<int> labels = Matrix<int>.fromDimensions(a.width, a.height, 0);
 
   // Union-Find data structure
-  final parent = <int>[];
-  final rank = <int>[];
+  final List<int> parent = <int>[];
+  final List<int> rank = <int>[];
 
   int ufMake() {
     parent.add(parent.length);
@@ -54,17 +55,18 @@ import 'matrix.dart';
       root = parent[root];
     }
 
-    while (parent[x] != x) {
-      final next = parent[x];
-      parent[x] = root;
-      x = next;
+    int curr = x;
+    while (parent[curr] != curr) {
+      final int next = parent[curr];
+      parent[curr] = root;
+      curr = next;
     }
     return root;
   }
 
   int ufUnion(int x, int y) {
-    final rootX = ufFind(x);
-    final rootY = ufFind(y);
+    final int rootX = ufFind(x);
+    final int rootY = ufFind(y);
     if (rootX == rootY) return rootX;
     if (rank[rootX] < rank[rootY]) {
       parent[rootX] = rootY;
@@ -84,13 +86,13 @@ import 'matrix.dart';
     for (int x = 0; x < a.width; x++) {
       if (!foreground.get(x, y)) continue;
 
-      final neighborLabels = <int>{};
+      final Set<int> neighborLabels = <int>{};
 
-      for (final offset in neighborOffsets) {
-        final nx = x + offset[0];
-        final ny = y + offset[1];
+      for (final List<int> offset in neighborOffsets) {
+        final int nx = x + offset[0];
+        final int ny = y + offset[1];
         if (nx >= 0 && nx < a.width && ny >= 0 && ny < a.height) {
-          final neighborLabel = labels.get(nx, ny);
+          final int neighborLabel = labels.get(nx, ny);
           if (neighborLabel > 0) {
             neighborLabels.add(neighborLabel);
           }
@@ -99,15 +101,16 @@ import 'matrix.dart';
 
       if (neighborLabels.isEmpty) {
         // New component
-        final newLabel = ufMake() + 1; // Labels start from 1
+        final int newLabel = ufMake() + 1; // Labels start from 1
         labels.set(x, y, newLabel);
       } else {
         // Assign the smallest label among neighbors
-        final minLabel = neighborLabels.reduce((a, b) => a < b ? a : b);
+        final int minLabel =
+            neighborLabels.reduce((int a, int b) => a < b ? a : b);
         labels.set(x, y, minLabel);
 
         // Union all neighbor labels
-        for (final nl in neighborLabels) {
+        for (final int nl in neighborLabels) {
           ufUnion(minLabel - 1, nl - 1); // Convert to zero-based index
         }
       }
@@ -117,21 +120,20 @@ import 'matrix.dart';
   // Second pass
   if (labels.max() == 0) return (labels, 0);
 
-
-  final used = labels.unique();
+  final List<int> used = labels.unique();
   used.remove(0); // Remove background (label 0)
 
-  final roots = <int, int>{};
-  for (final label in used) {
-    final root = ufFind(label - 1); // Convert to zero-based index
+  final Map<int, int> roots = <int, int>{};
+  for (final int label in used) {
+    final int root = ufFind(label - 1); // Convert to zero-based index
     roots[label] = root;
   }
 
   // Relabeling
-  final rootSet = <int>[];
-  final seen = <int>{};
-  for (final lab in used) {
-    final r = roots[lab]!;
+  final List<int> rootSet = <int>[];
+  final Set<int> seen = <int>{};
+  for (final int lab in used) {
+    final int r = roots[lab]!;
     if (!seen.contains(r)) {
       seen.add(r);
       rootSet.add(r);
@@ -139,29 +141,29 @@ import 'matrix.dart';
   }
   rootSet.sort();
 
-  final rootToCompact = <int, int>{};
+  final Map<int, int> rootToCompact = <int, int>{};
   for (int i = 0; i < rootSet.length; i++) {
     rootToCompact[rootSet[i]] = i + 1; // Compact labels start from 1
   }
 
-  final labToCompact = <int, int>{};
-  for (final lab in used) {
-    final r = roots[lab]!;
+  final Map<int, int> labToCompact = <int, int>{};
+  for (final int lab in used) {
+    final int r = roots[lab]!;
     labToCompact[lab] = rootToCompact[r]!;
   }
 
-  final maxLab = labels.max();
-  final lut = List<int>.filled(maxLab + 1, 0);
-  for (final entry in labToCompact.entries) {
+  final int maxLab = labels.max();
+  final List<int> lut = List<int>.filled(maxLab + 1, 0);
+  for (final MapEntry<int, int> entry in labToCompact.entries) {
     lut[entry.key] = entry.value;
   }
 
   // Apply LUT
-  final mask = labels.notEqualMask(0);
+  final Matrix<bool> mask = labels.notEqualMask(0);
   for (int y = 0; y < a.height; y++) {
     for (int x = 0; x < a.width; x++) {
       if (mask.get(x, y)) {
-        final oldLabel = labels.get(x, y);
+        final int oldLabel = labels.get(x, y);
         labels.set(x, y, lut[oldLabel]);
       }
     }
@@ -171,9 +173,9 @@ import 'matrix.dart';
 }
 
 List<List<int>> _computeCausalNeighborOffsets(Matrix structure) {
-  final offsets = <List<int>>[];
-  final centerX = structure.width ~/ 2;
-  final centerY = structure.height ~/ 2;
+  final List<List<int>> offsets = <List<int>>[];
+  final int centerX = structure.width ~/ 2;
+  final int centerY = structure.height ~/ 2;
 
   for (int y = 0; y < structure.height; y++) {
     for (int x = 0; x < structure.width; x++) {
@@ -181,7 +183,7 @@ List<List<int>> _computeCausalNeighborOffsets(Matrix structure) {
 
       // Only consider neighbors above and to the left of the center
       if (y < centerY || (y == centerY && x < centerX)) {
-        offsets.add([x - centerX, y - centerY]);
+        offsets.add(<int>[x - centerX, y - centerY]);
       }
     }
   }
