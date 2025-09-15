@@ -39,3 +39,23 @@ tested on 2001 samples
 |-------|---------------------|
 | EucDist | 8863 ms |
 | TfLite | 7616 ms |
+
+### Expected time
+
+為了更公平的比較不同方法的效能，使用以下公式來計算預期時間：
+
+```
+預期時間 = (抓取圖片時間 +  推理時間) / 模型準確度
+```
+
+圖表為依據以下數據繪製：
+- Euclidean Distance 推理用時比 TFLite 多約 1.18 倍。
+- TFLite 的準確度為 82.38%，Euclidean Distance 的準確度為 98.98%。
+
+![](./expected_time.webp)
+
+## Conclusion
+
+我們可以看到雖然 Euclidean Distance 的推理時間較長，但因為其準確度較高，導致其預期時間反而較短。當網路狀況不佳時，這種差異會更加明顯。目前的 TFLite 模型準確度過低，導致無論網路狀況如何，其預期時間都較長。
+
+若要使用 TFLite 模型，則至少需要將模型的準確度提升至 93% 以上，且在幾乎不損失推理速度的情況下，預期時間才能與 Euclidean Distance 相當。
