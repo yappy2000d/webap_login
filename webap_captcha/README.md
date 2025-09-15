@@ -11,9 +11,6 @@
 - Python: 以 Python 撰寫的版本，用於功能驗證。將以此版本來比較不同方式的準確率。
 
 ## Test Results
-
-## Test Results
-
 ### Accuracy
 
 | Method | Error/Total | Accuracy |
