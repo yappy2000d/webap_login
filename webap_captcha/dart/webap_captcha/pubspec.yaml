@@ -13,6 +13,7 @@ dependencies:
   tflite_flutter: ^0.11.0
   flutter:
     sdk: flutter
+  opencv_dart: ^1.4.3
 
 dev_dependencies:
   lints: ^5.1.1
@@ -27,3 +28,10 @@ flutter:
     - assets/webap_captcha.tflite
     - assets/eucdist/
     - assets_test/labeled/
+
+hooks:
+  user_defines:
+    dartcv4:
+      exclude_modules:
+        - videoio
+        - highgui
