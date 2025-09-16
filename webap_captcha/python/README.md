@@ -28,12 +28,17 @@ uv sync
   - [X] Fix F sometimes wrong to P
   - [ ] Fix 7 sometimes wrong to T (impossible? need more data)
 
-## Test
+## File structure
 
-| Method | Error/Total | Accuracy |
-|--------|-------------|----------|
-| TFLite | 896/5084    | 82.38%   |
-| Cossim | 1365/1365   | 0%       |
-| Eucdist| 51/5000     | 98.98%   |
-
-there are 41 errors Eucdist are caused by wrong segmentation.
+```
+character_gen.py: 生成比對用的圖片
+cossim.py: cosine similarity
+eucdist.py: euclidean distance
+fix7.py: 改善7時常辨識錯誤的問題
+fixF.py: 改善F時常辨識錯誤的問題
+fixQ.py: 改善Q時常辨識錯誤的問題
+nkust.pem: 用於爬蟲SSL驗證
+pyproject.toml: Python專案檔案
+segment.py: 用於取出文字
+畫圖.ipynb: 用來繪製統計結果的圖
+```
