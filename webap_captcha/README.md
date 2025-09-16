@@ -59,7 +59,7 @@ tested on 2001 samples
 
 ## Improvement
 
-$$I=(1-\frac{\text{E}2}{\text{E}1})\times{100\%}$$
+$$I=(1-\frac{\text{E}2}{\text{E}1})\times{100}\%}$$
 
 當 $x$ 趨近無限大時，會趨近於 16.8%。
 
