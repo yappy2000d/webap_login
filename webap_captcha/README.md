@@ -61,8 +61,8 @@ tested on 2001 samples
 
 $$I=(1-\frac{\text{E}2}{\text{E}1})\times{100\%}$$
 
-當 $x$ 趨近無限大時，會趨近於 16.8。
+當 $x$ 趨近無限大時，會趨近於 16.8%。
 
 $$\lim_{x \to \infty}1-\frac{(1+\frac{1.18t_1}{x})p_1}{(1+\frac{t_1}{x})p_2}=1-\frac{p1}{p2}$$
 
-
+![](./improve.webp)
